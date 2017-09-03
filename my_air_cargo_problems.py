@@ -54,6 +54,18 @@ class AirCargoProblem(Problem):
         # or 'Load(C2, P2, JFK)'.  The actions for the planning problem must be concrete because the problems in
         # forward search and Planning Graphs must use Propositional Logic
 
+        # Action(Load(c, p, a),
+        #        PRECOND: At(c, a) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+        # EFFECT: ¬ At(c, a) ∧ In(c, p))
+
+        # Action(Unload(c, p, a),
+        #        PRECOND: In(c, p) ∧ At(p, a) ∧ Cargo(c) ∧ Plane(p) ∧ Airport(a)
+        # EFFECT: At(c, a) ∧ ¬ In(c, p))
+
+        # Action(Fly(p, from, to),
+        # PRECOND: At(p, from) ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+        # EFFECT: ¬ At(p, from) ∧ At(p, to))
+
         def load_actions():
             """Create all concrete Load actions and return a list
 
@@ -61,6 +73,19 @@ class AirCargoProblem(Problem):
             """
             loads = []
             # TODO create all load ground actions from the domain Load action
+            for a in self.airports:
+                for c in self.cargos:
+                    for p in self.planes:
+                        precond_pos = [expr("At({}, {})".format(c, a)),
+                                       expr("At({}, {})".format(p, a)),
+                                       ]
+                        precond_neg = []
+                        effect_add = [expr("In({}, {})".format(c, p))]
+                        effect_rem = [expr("At({}, {})".format(c, a))]
+                        load = Action(expr("Load({}, {}, {})".format(c, p, a)),
+                                     [precond_pos, precond_neg],
+                                     [effect_add, effect_rem])
+                        loads.append(load)
             return loads
 
         def unload_actions():
@@ -70,6 +95,19 @@ class AirCargoProblem(Problem):
             """
             unloads = []
             # TODO create all Unload ground actions from the domain Unload action
+            for a in self.airports:
+                for c in self.cargos:
+                    for p in self.planes:
+                        precond_pos = [expr("In({}, {})".format(c, a)),
+                                       expr("At({}, {})".format(p, a)),
+                                       ]
+                        precond_neg = []
+                        effect_add = [expr("At({}, {})".format(c, a))]
+                        effect_rem = [expr("In({}, {})".format(c, p))]
+                        unload = Action(expr("Unload({}, {}, {})".format(c, p, a)),
+                                     [precond_pos, precond_neg],
+                                     [effect_add, effect_rem])
+                        unloads.append(unload)
             return unloads
 
         def fly_actions():
