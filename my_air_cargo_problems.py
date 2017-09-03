@@ -143,6 +143,8 @@ class AirCargoProblem(Problem):
         """
         # TODO implement
         possible_actions = []
+        self.initial_state_TF
+        unload = Action(expr("Unload({}, {}, {})".format(c, p, a)))
         return possible_actions
 
     def result(self, state: str, action: Action):
